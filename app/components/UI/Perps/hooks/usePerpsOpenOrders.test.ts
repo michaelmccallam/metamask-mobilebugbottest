@@ -78,7 +78,7 @@ describe('usePerpsOpenOrders', () => {
   });
 
   describe('Initial state', () => {
-    it('returns initial state with empty orders and loading true', () => {
+    it('should handle initial state correctly', () => {
       const { result } = renderHook(() => usePerpsOpenOrders());
 
       expect(result.current.orders).toEqual([]);
