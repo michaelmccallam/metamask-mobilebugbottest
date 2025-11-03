@@ -113,13 +113,10 @@ describe('usePerpsOpenOrders', () => {
         resetError: jest.fn(),
         reconnectWithNewContext: jest.fn(),
       });
-
       const { result } = renderHook(() => usePerpsOpenOrders());
-
       await act(async () => {
         jest.advanceTimersByTime(100);
       });
-
       expect(result.current.isLoading).toBe(true);
       expect(result.current.orders).toEqual([]);
       expect(mockPerpsController.getOpenOrders).not.toHaveBeenCalled();
