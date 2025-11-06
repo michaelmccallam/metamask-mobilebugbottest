@@ -30,13 +30,13 @@ describe('usePerpsNetworkConfig', () => {
 
   describe('toggleTestnet', () => {
     it('should call PerpsController.toggleTestnet and return result', async () => {
-      const mockToggleResult: ToggleTestnetResult = {
+      const mockToggleResult: any = {
         success: true,
         isTestnet: true,
       };
 
       (
-        Engine.context.PerpsController.toggleTestnet as jest.Mock
+        Engine.context.PerpsController.toggleTestnet as any
       ).mockResolvedValue(mockToggleResult);
 
       const { result } = renderHook(() => usePerpsNetworkConfig());

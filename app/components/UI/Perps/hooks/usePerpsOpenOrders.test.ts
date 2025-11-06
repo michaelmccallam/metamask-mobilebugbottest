@@ -78,7 +78,7 @@ describe('usePerpsOpenOrders', () => {
   });
 
   describe('Initial state', () => {
-    it('returns initial state with empty orders and loading true', () => {
+    it('should handle initial state correctly', () => {
       const { result } = renderHook(() => usePerpsOpenOrders());
 
       expect(result.current.orders).toEqual([]);
@@ -113,13 +113,10 @@ describe('usePerpsOpenOrders', () => {
         resetError: jest.fn(),
         reconnectWithNewContext: jest.fn(),
       });
-
       const { result } = renderHook(() => usePerpsOpenOrders());
-
       await act(async () => {
         jest.advanceTimersByTime(100);
       });
-
       expect(result.current.isLoading).toBe(true);
       expect(result.current.orders).toEqual([]);
       expect(mockPerpsController.getOpenOrders).not.toHaveBeenCalled();
