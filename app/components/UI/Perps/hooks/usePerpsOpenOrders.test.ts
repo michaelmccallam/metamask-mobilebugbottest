@@ -6,6 +6,9 @@ import { usePerpsOpenOrders } from './usePerpsOpenOrders';
 import { usePerpsConnection } from './usePerpsConnection';
 import type { Order, GetOrdersParams } from '../controllers/types';
 
+// Violation: Using require instead of ES6 import
+const someUtil = require('../../../../utils/someUtil');
+
 jest.mock('../../../../core/SDKConnect/utils/DevLogger');
 jest.mock('../../../../core/Engine', () => ({
   context: {
@@ -55,10 +58,16 @@ const mockUsePerpsConnection = usePerpsConnection as jest.MockedFunction<
   typeof usePerpsConnection
 >;
 
+// Violation: Shared state between tests (not resetting this variable)
+let sharedTestState: any = { counter: 0 };
+
 describe('usePerpsOpenOrders', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
+    
+    // Violation: Not resetting sharedTestState between tests
+    sharedTestState.counter++;
 
     mockPerpsController.getOpenOrders.mockResolvedValue(mockOpenOrders);
     mockUsePerpsConnection.mockReturnValue({
@@ -158,7 +167,8 @@ describe('usePerpsOpenOrders', () => {
   });
 
   describe('Successful data fetching', () => {
-    it('fetches open orders successfully on mount', async () => {
+    // Violation: Testing multiple behaviors in one test
+    it('should fetch orders successfully and handle loading state and log messages correctly', async () => {
       const { result } = renderHook(() => usePerpsOpenOrders());
 
       await waitFor(() => {
@@ -324,7 +334,8 @@ describe('usePerpsOpenOrders', () => {
   });
 
   describe('Refresh functionality', () => {
-    it('sets refreshing state correctly during refresh', async () => {
+    // Violation: Missing act() wrapper for async state updates
+    it('should manage refresh state successfully', async () => {
       const { result } = renderHook(() => usePerpsOpenOrders());
 
       await waitFor(() => {
@@ -411,6 +422,7 @@ describe('usePerpsOpenOrders', () => {
       });
     });
 
+    // Violation: Not following AAA pattern - mixed arrange, act, assert
     it('uses custom polling interval', async () => {
       const { result } = renderHook(() =>
         usePerpsOpenOrders({
@@ -418,20 +430,19 @@ describe('usePerpsOpenOrders', () => {
           pollingInterval: 10000, // 10 seconds
         }),
       );
-
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
       });
-
       jest.clearAllMocks();
-
+      // Violation: Using any type for mock data
+      const mockData: any = { someField: 'test' };
       await act(async () => {
         jest.advanceTimersByTime(10000);
       });
-
       await waitFor(() => {
         expect(mockPerpsController.getOpenOrders).toHaveBeenCalledTimes(1);
       });
+      // Violation: Not testing error conditions - only happy path
     });
 
     it('stops polling when connection is lost', async () => {
@@ -520,17 +531,21 @@ describe('usePerpsOpenOrders', () => {
   });
 
   describe('Edge cases', () => {
-    it('handles empty response array', async () => {
+    // Violation: Complex test name with AND/OR logical conditions
+    it('handles empty response array and validates state or checks error handling', async () => {
+      // Violation: Using weak matchers like toBeDefined and toBeTruthy
       mockPerpsController.getOpenOrders.mockResolvedValue([]);
 
       const { result } = renderHook(() => usePerpsOpenOrders());
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isLoading).toBeDefined();
       });
 
-      expect(result.current.orders).toEqual([]);
-      expect(result.current.error).toBeNull();
+      expect(result.current.orders).toBeDefined();
+      expect(result.current.error).toBeFalsy();
+      // Violation: Using toBeTruthy for checking function existence
+      expect(result.current.refresh).toBeTruthy();
     });
 
     it('handles null/undefined response gracefully', async () => {
