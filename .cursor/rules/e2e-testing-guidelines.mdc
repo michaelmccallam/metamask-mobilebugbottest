@@ -23,7 +23,7 @@ alwaysApply: true
 - Include multiple behaviors with 'and' in a single test name
 - Use vague or generic names
 
-## Test Organization
+## Test Organization - MANDATORY
 
 - Organize tests into folders based on features and scenarios
 - Each feature team should own one or more folders of tests
@@ -148,9 +148,9 @@ class LoginPage {
 export default new LoginPage();
 ```
 
-### Proper Waiting and Assertions
-- NEVER use `TestHelpers.delay()` - it creates flaky tests and slows down test execution
-- ALWAYS use proper waiting with Assertions from the framework:
+### Proper Waiting and Assertions  - MANDATORY
+- **NEVER** use `TestHelpers.delay()` - it creates flaky tests and slows down test execution
+- **ALWAYS** use proper waiting with Assertions from the framework:
   ```javascript
   // DON'T:
   TestHelpers.delay(1000);
@@ -161,8 +161,8 @@ export default new LoginPage();
   });
   ```
 
-### Framework Imports
-- ALWAYS import framework utilities from `e2e/framework/index.ts`, not from individual utility files
+### Framework Imports  - MANDATORY
+- **ALWAYS** import framework utilities from `e2e/framework/index.ts`, not from individual utility files
 - Use the centralized framework exports for consistency and maintainability
 
 ### Element State Checking Configuration
@@ -189,7 +189,7 @@ await Gestures.tap(processingButton, {
 });
 ```
 
-### Prohibited Patterns in Test Specs
+### Prohibited Patterns in Test Specs - MANDATORY
 The following patterns are prohibited in test specs:
 
 1. **Direct Element Selection**
@@ -273,10 +273,11 @@ async tapOpenAllTabsButton(): Promise<void> {
 }
 ```
 
-## Code Review Checklist
+## Quality Checklist - MANDATORY
+Before submitting any test file, verify:
 
-Before submitting E2E tests, ensure:
-
+- [ ] ALWAYS import framework utilities from e2e/framework/index.ts
+- [ ] ALWAYS use the Page Object Model pattern for organizing test code
 - [ ] No usage of `TestHelpers.delay()` or `setTimeout()`
 - [ ] All assertions have descriptive `description` parameters
 - [ ] All gestures have descriptive `description` parameters
@@ -286,6 +287,10 @@ Before submitting E2E tests, ensure:
 - [ ] Framework configuration used appropriately
 - [ ] Error handling for expected failure scenarios
 - [ ] Tests work on both iOS and Android platforms
+- [ ] No use of waitFor(element)
+- [ ] No use of direct element selection
+- [ ] No use of direct Selectors
+
 
 ## Debugging Failed Tests
 
