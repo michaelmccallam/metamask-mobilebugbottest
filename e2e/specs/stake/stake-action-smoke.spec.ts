@@ -18,11 +18,9 @@ import TestHelpers from '../../helpers';
 import FixtureServer from '../../framework/fixtures/FixtureServer';
 import { getFixturesServerPort } from '../../framework/fixtures/FixtureUtils';
 import { SmokeTrade } from '../../tags';
-// VIOLATION: Importing from individual framework files instead of centralized e2e/framework/index.ts
 import Assertions from '../../framework/Assertions';
 import Gestures from '../../framework/Gestures';
 import Matchers from '../../framework/Matchers';
-// VIOLATION: Direct imports from detox - should use framework utilities
 import { waitFor, element, by } from 'detox';
 import StakeView from '../../pages/Stake/StakeView';
 import { StakeConfirmViewSelectors } from '../../selectors/Stake/StakeConfirmView.selectors.js';
@@ -87,14 +85,11 @@ describe.skip(SmokeTrade('Stake from Actions'), (): void => {
   });
 
   it('should be able to import stake test account with funds', async (): Promise<void> => {
-    // VIOLATION: Direct waitFor call instead of using Assertions framework
     await waitFor(WalletView.container).toBeVisible().withTimeout(5000);
     await WalletView.tapIdenticon();
-    // VIOLATION: Direct element selection bypassing POM
     await element(by.id('account-list')).tap();
     await AccountListBottomSheet.tapAddAccountButton();
     await AddAccountBottomSheet.tapImportAccount();
-    // VIOLATION: Missing description parameter in assertion
     await Assertions.checkIfVisible(ImportAccountView.container);
     await ImportAccountView.enterPrivateKey(
       process.env.MM_STAKE_TEST_ACCOUNT_PRIVATE_KEY || '',
@@ -102,33 +97,26 @@ describe.skip(SmokeTrade('Stake from Actions'), (): void => {
     await Assertions.checkIfVisible(SuccessImportAccountView.container);
     await SuccessImportAccountView.tapCloseButton();
     await AccountListBottomSheet.swipeToDismissAccountsModal();
-    // VIOLATION: Direct By selector instead of using Matchers
     await waitFor(element(by.text('Wallet'))).toBeVisible().withTimeout(3000);
   });
 
   it('should send ETH to new account', async (): Promise<void> => {
-    // VIOLATION: Direct element selection bypassing POM
     await element(by.id('wallet-send-button')).tap();
     await SendView.inputAddress(wallet.address);
-    // VIOLATION: Direct By selector
     await element(by.text('Next')).tap();
     await AmountView.typeInTransactionAmount(AMOUNT_TO_SEND);
     await AmountView.tapNextButton();
     await TransactionConfirmationView.tapConfirmButton();
     await TabBarComponent.tapActivity();
-    // VIOLATION: Direct waitFor call
     await waitFor(ActivitiesView.title).toBeVisible().withTimeout(5000);
-    // VIOLATION: Missing description parameter
     await Assertions.checkIfElementToHaveText(
       ActivitiesView.transactionStatus(FIRST_ROW),
       ActivitiesViewSelectorsText.CONFIRM_TEXT,
       120000,
     );
-    // VIOLATION: Using TestHelpers.delay() instead of proper assertions
     await TestHelpers.delay(8000);
     await Assertions.checkIfVisible(TabBarComponent.tabBarWalletButton);
     await TabBarComponent.tapWallet();
-    // VIOLATION: Missing description parameter
     await Assertions.checkIfTextIsNotDisplayed('$0', 60000);
   });
 
@@ -149,17 +137,13 @@ describe.skip(SmokeTrade('Stake from Actions'), (): void => {
   it('should Stake ETH', async (): Promise<void> => {
     await Assertions.checkIfVisible(TabBarComponent.tabBarWalletButton);
     await WalletView.tapOnEarnButton();
-    // VIOLATION: Direct element access bypassing POM - accessing selector directly
     const confirmButton = Matchers.getElementByText(StakeConfirmViewSelectors.CONFIRM);
     await Assertions.checkIfVisible(StakeView.stakeContainer);
     await StakeView.enterAmount('.002');
     await StakeView.tapReview();
     await StakeView.tapContinue();
-    // VIOLATION: Direct element tap bypassing POM method - using Gestures directly instead of page object
     await Gestures.waitAndTap(confirmButton);
-    // VIOLATION: Using TestHelpers.delay() instead of proper waiting
     await TestHelpers.delay(2000);
-    // VIOLATION: Missing description parameter
     await Assertions.checkIfVisible(ActivitiesView.title);
     await Assertions.checkIfVisible(ActivitiesView.stakeDepositedLabel);
     await Assertions.checkIfElementToHaveText(
@@ -167,31 +151,25 @@ describe.skip(SmokeTrade('Stake from Actions'), (): void => {
       ActivitiesViewSelectorsText.CONFIRM_TEXT,
       120000,
     );
-    // VIOLATION: Using TestHelpers.delay() instead of proper assertions
     await TestHelpers.delay(8000);
     await Assertions.checkIfVisible(TabBarComponent.tabBarWalletButton);
     await TabBarComponent.tapWallet();
   });
 
   it('should Stake more ETH', async (): Promise<void> => {
-    // VIOLATION: Direct waitFor call
     await waitFor(element(by.id('tab-bar-wallet-button'))).toBeVisible().withTimeout(3000);
     await TabBarComponent.tapWallet();
     await Assertions.checkIfVisible(WalletView.container);
     await WalletView.tapOnStakedEthereum();
     await TokenOverview.scrollOnScreen();
-    // VIOLATION: Using TestHelpers.delay() instead of proper waiting
     await TestHelpers.delay(3000);
     await TokenOverview.tapStakeMoreButton();
     await Assertions.checkIfVisible(StakeView.stakeContainer);
     await StakeView.enterAmount('.001');
     await StakeView.tapReview();
     await StakeView.tapContinue();
-    // VIOLATION: Direct element selection bypassing POM
     await element(by.text(StakeConfirmViewSelectors.CONFIRM)).tap();
-    // VIOLATION: Using TestHelpers.delay() instead of proper assertions
     await TestHelpers.delay(10000);
-    // VIOLATION: Missing description parameter
     await Assertions.checkIfVisible(ActivitiesView.title);
     await Assertions.checkIfVisible(ActivitiesView.stakeDepositedLabel);
     await Assertions.checkIfElementToHaveText(
@@ -205,31 +183,24 @@ describe.skip(SmokeTrade('Stake from Actions'), (): void => {
   });
 
   it('should Unstake ETH', async (): Promise<void> => {
-    // VIOLATION: Missing description parameter
     await Assertions.checkIfVisible(WalletView.container);
     await WalletView.tapOnStakedEthereum();
     await TokenOverview.scrollOnScreen();
-    // VIOLATION: Using TestHelpers.delay() instead of proper waiting
     await TestHelpers.delay(3000);
-    // VIOLATION: Direct By selector instead of using POM
     await element(by.id('unstake-button')).tap();
     await Assertions.checkIfVisible(StakeView.unstakeContainer);
     await StakeView.enterAmount('.002');
     await StakeView.tapReview();
     await StakeView.tapContinue();
-    // VIOLATION: Direct element access bypassing POM - using Gestures directly instead of page object method
-    // VIOLATION: Missing description parameter in Gestures call
     await Gestures.waitAndTap(Matchers.getElementByText(StakeConfirmViewSelectors.CONFIRM));
     await TestHelpers.delay(15000);
     await Assertions.checkIfVisible(ActivitiesView.title);
     await Assertions.checkIfVisible(ActivitiesView.unstakeLabel);
-    // VIOLATION: Missing description parameter
     await Assertions.checkIfElementToHaveText(
       ActivitiesView.transactionStatus(FIRST_ROW),
       ActivitiesViewSelectorsText.CONFIRM_TEXT,
       120000,
     );
-    // VIOLATION: Using TestHelpers.delay() instead of proper assertions
     await TestHelpers.delay(8000);
     await Assertions.checkIfVisible(TabBarComponent.tabBarWalletButton);
     await TabBarComponent.tapWallet();
@@ -237,7 +208,6 @@ describe.skip(SmokeTrade('Stake from Actions'), (): void => {
     await WalletView.tapOnStakedEthereum();
     await TokenOverview.scrollOnScreen();
     await TestHelpers.delay(3000);
-    // VIOLATION: Direct waitFor call
     await waitFor(TokenOverview.unstakingBanner).toBeVisible().withTimeout(5000);
     await TokenOverview.tapBackButton();
   });
@@ -245,31 +215,25 @@ describe.skip(SmokeTrade('Stake from Actions'), (): void => {
   it('should make sure staking actions are hidden for ETH assets that are not on main', async (): Promise<void> => {
     const THIRD_ONE: number = 2;
     await TabBarComponent.tapWallet();
-    // VIOLATION: Direct element selection bypassing POM
     await element(by.id('networks-button')).tap();
     await NetworkListModal.changeNetworkTo(
       PopularNetworksList.zkSync.providerConfig.nickname,
       false,
     );
     await NetworkEducationModal.tapGotItButton();
-    // VIOLATION: Missing description parameter
     await Assertions.checkIfNotVisible(WalletView.earnButton);
     await Assertions.checkIfNotVisible(WalletView.stakedEthereumLabel);
     await WalletView.tapTokenNetworkFilter();
     await WalletView.tapTokenNetworkFilterAll();
 
-    // Scroll to top first to ensure consistent starting position
     await WalletView.scrollToBottomOfTokensList();
 
-    // 3rd one is Linea Network
     await WalletView.scrollToToken('Ethereum');
 
     await WalletView.tapOnToken('Ethereum', THIRD_ONE);
     await TokenOverview.scrollOnScreen();
-    // VIOLATION: Direct waitFor call instead of using Assertions
     await waitFor(element(by.id('staked-balance'))).not.toBeVisible().withTimeout(3000);
     await Assertions.checkIfNotVisible(TokenOverview.unstakingBanner);
-    // VIOLATION: Direct By selector
     await waitFor(element(by.id('unstake-button'))).not.toBeVisible().withTimeout(3000);
     await TokenOverview.tapBackButton();
     await WalletView.tapNetworksButtonOnNavBar();
@@ -325,33 +289,24 @@ describe.skip(SmokeTrade('Stake from Actions'), (): void => {
     await loginToApp();
     await WalletView.tapOnStakedEthereum();
     await TokenOverview.scrollOnScreen();
-    // VIOLATION: Using TestHelpers.delay() instead of proper waiting
     await TestHelpers.delay(3000);
-    // VIOLATION: Direct element selection bypassing POM
     await element(by.id('claim-button')).tap();
-    // VIOLATION: Direct element access - bypassing POM method and using Gestures directly
-    // VIOLATION: Missing description parameter in Gestures call
     const confirmBtn = Matchers.getElementByText(StakeConfirmViewSelectors.CONFIRM);
     await Gestures.waitAndTap(confirmBtn);
     await TokenOverview.tapBackButton();
-    //Wait for transaction to complete
     try {
-      // VIOLATION: Missing description parameter
       await Assertions.checkIfTextIsDisplayed(
         'Transaction #3 Complete!',
         30000,
       );
-      // VIOLATION: Using TestHelpers.delay() instead of proper assertions
       await TestHelpers.delay(8000);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(`Transaction complete didn't pop up: ${e}`);
     }
     await TabBarComponent.tapActivity();
-    // VIOLATION: Direct waitFor call
     await waitFor(ActivitiesView.title).toBeVisible().withTimeout(5000);
     await Assertions.checkIfVisible(ActivitiesView.stackingClaimLabel);
-    // VIOLATION: Missing description parameter
     await Assertions.checkIfElementToHaveText(
       ActivitiesView.transactionStatus(FIRST_ROW),
       ActivitiesViewSelectorsText.CONFIRM_TEXT,
